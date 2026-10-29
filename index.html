@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Планировщик студента — учебная концепция, которая помогает собрать задания, предметы и сроки в одном месте. Попробуйте небольшую демонстрацию.">
+  <title>Планировщик студента — учёба по порядку</title>
+  <style>
+    :root { --paper:#f8f9f5; --white:#fff; --ink:#202b26; --muted:#5c6961; --green:#276348; --green-dark:#174b33; --tint:#eaf0e7; --line:#dce3da; --radius:22px; }
+    * { box-sizing:border-box; }
+    html { scroll-behavior:smooth; scroll-padding-top:105px; }
+    body { margin:0; background:var(--paper); color:var(--ink); font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; font-size:16px; line-height:1.6; }
+    button, select { font:inherit; }
+    button, a { -webkit-tap-highlight-color:transparent; }
+    a { color:inherit; }
+    a, button { transition:background .18s,color .18s,transform .18s,border-color .18s; }
+    :focus-visible { outline:3px solid var(--green); outline-offset:5px; }
+    .container { width:min(1160px,calc(100% - 64px)); margin-inline:auto; }
+    .skip-link { position:fixed; left:20px; top:-100px; z-index:20; padding:12px 20px; background:white; border:2px solid var(--green); border-radius:10px; }
+    .skip-link:focus { top:12px; }
+    .site-header { position:sticky; top:0; z-index:10; background:rgba(248,249,245,.97); border-bottom:1px solid var(--line); }
+    .header-inner { min-height:86px; display:flex; align-items:center; justify-content:space-between; gap:24px; }
+    .brand { display:flex; align-items:center; gap:11px; text-decoration:none; font-size:17px; font-weight:750; letter-spacing:-.5px; }
+    .brand-icon { display:grid; place-items:center; width:36px; height:36px; background:var(--green); color:white; border-radius:10px; flex:none; }
+    svg { display:block; }
+    nav { display:flex; align-items:center; gap:28px; font-size:14px; }
+    nav a { text-decoration:none; padding:8px 0; }
+    nav a:hover { color:var(--green); text-decoration:underline; text-underline-offset:6px; }
+    .nav-demo { border:1px solid var(--line); border-radius:9px; padding:9px 17px; }
+    .nav-demo:hover { background:var(--tint); }
+    .hero { padding:80px 0 84px; }
+    .hero-grid { display:grid; grid-template-columns:1.12fr 1fr; gap:64px; align-items:center; }
+    .eyebrow { display:flex; align-items:center; gap:9px; color:var(--green); font-size:12px; letter-spacing:1.7px; font-weight:750; text-transform:uppercase; margin:0 0 24px; }
+    .eyebrow::before { content:""; width:7px; height:7px; background:var(--green); border-radius:50%; flex:none; }
+    h1 { margin:0 0 24px; max-width:640px; font-size:clamp(42px,4.4vw,64px); font-weight:650; line-height:1.08; letter-spacing:-2.8px; }
+    h1 span { color:var(--green); }
+    .lead { max-width:470px; font-size:18px; color:var(--muted); line-height:1.7; margin:0 0 30px; }
+    .button { display:inline-flex; align-items:center; justify-content:center; gap:16px; border:1px solid var(--green); border-radius:10px; padding:13px 22px; color:white; background:var(--green); text-decoration:none; font-weight:600; cursor:pointer; }
+    .button:hover { background:var(--green-dark); transform:translateY(-2px); }
+    .small-note { margin:16px 0 0; color:var(--muted); font-size:13px; }
+    .hero-visual { position:relative; padding:33px 22px 26px; background:var(--tint); border-radius:32px; }
+    .visual-label { display:flex; justify-content:space-between; align-items:center; margin:0 5px 17px; font-size:12px; color:var(--green); font-weight:650; letter-spacing:1px; text-transform:uppercase; }
+    .planner-preview { background:white; border:1px solid var(--line); border-radius:17px; padding:24px; box-shadow:0 16px 32px #243e2510; }
+    .preview-header { display:flex; justify-content:space-between; align-items:flex-start; padding-bottom:20px; border-bottom:1px solid var(--line); gap:10px; }
+    .preview-header strong { display:block; font-size:22px; letter-spacing:-.7px; }
+    .preview-header p { margin:3px 0 0; font-size:12px; color:var(--muted); }
+    .preview-symbol { background:var(--tint); border-radius:10px; padding:10px; color:var(--green); }
+    .preview-row { display:flex; gap:12px; align-items:center; padding:17px 0; border-bottom:1px solid #edf0eb; }
+    .preview-row:last-child { border:0; padding-bottom:0; }
+    .preview-check { width:21px; height:21px; border:1px solid #b9c7b8; border-radius:6px; flex:none; }
+    .preview-check.done { display:grid; place-items:center; background:var(--green); border-color:var(--green); color:white; font-size:13px; }
+    .preview-row strong { font-size:13px; display:block; }
+    .preview-row small { color:var(--muted); font-size:11px; }
+    .preview-row > span:last-child { margin-left:auto; font-size:10px; padding:4px 8px; border-radius:6px; background:var(--tint); white-space:nowrap; }
+    .visual-caption { margin:18px 6px 0; font-size:12px; color:var(--muted); }
+    .section { padding:78px 0; border-top:1px solid var(--line); }
+    .section-number { color:var(--green); font-size:12px; font-weight:700; letter-spacing:1.4px; text-transform:uppercase; margin:0 0 14px; }
+    h2 { margin:0; font-size:clamp(30px,3vw,42px); letter-spacing:-1.4px; line-height:1.2; font-weight:650; }
+    h3 { margin:0 0 10px; font-size:19px; line-height:1.4; letter-spacing:-.4px; }
+    .section-intro { margin:16px 0 0; max-width:600px; color:var(--muted); }
+    .problem-grid { display:grid; grid-template-columns:1fr 1fr; gap:90px; align-items:start; }
+    .problem-copy p { margin:0 0 20px; color:var(--muted); }
+    .problem-copy p:last-child { margin-bottom:0; }
+    .inline-tag { display:inline-block; padding:3px 10px; background:var(--tint); color:var(--green); border-radius:6px; font-size:14px; margin-bottom:20px; }
+    .features { display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin-top:32px; }
+    .feature { background:white; border:1px solid var(--line); border-radius:var(--radius); padding:26px 22px; }
+    .feature-icon { width:42px; height:42px; display:grid; place-items:center; background:var(--tint); color:var(--green); border-radius:12px; margin-bottom:26px; }
+    .feature p { margin:0; color:var(--muted); font-size:14px; }
+    .steps { display:grid; grid-template-columns:repeat(3,1fr); gap:40px; margin-top:38px; }
+    .step { border-top:1px solid var(--line); padding-top:24px; }
+    .step-number { display:block; color:var(--green); font-size:38px; line-height:1; font-weight:500; letter-spacing:-2px; margin-bottom:28px; }
+    .step p { color:var(--muted); margin:0; font-size:15px; max-width:290px; }
+    .demo-section { background:var(--tint); }
+    .demo-heading { display:flex; align-items:end; justify-content:space-between; gap:24px; }
+    .demo-badge { white-space:nowrap; font-size:12px; border:1px solid #c5d2c0; border-radius:30px; padding:7px 13px; color:var(--green); }
+    .demo-panel { background:white; border:1px solid #cfd9cc; border-radius:var(--radius); margin-top:32px; overflow:hidden; }
+    .demo-toolbar { display:flex; align-items:center; justify-content:space-between; gap:16px; padding:22px 26px; border-bottom:1px solid var(--line); }
+    .filters { display:flex; gap:6px; flex-wrap:wrap; }
+    .filter { cursor:pointer; background:transparent; border:1px solid transparent; color:var(--muted); font-size:13px; padding:7px 12px; border-radius:7px; }
+    .filter:hover { border-color:var(--green); color:var(--green); }
+    .filter[aria-pressed="true"] { background:var(--tint); color:var(--green); font-weight:650; }
+    .demo-actions { display:flex; align-items:center; gap:14px; flex-wrap:wrap; }
+    .reset-button { background:white; color:var(--green); border:1px solid #b7c7b6; border-radius:8px; padding:8px 12px; min-height:44px; font-size:13px; cursor:pointer; }
+    .reset-button:hover { background:var(--tint); border-color:var(--green); }
+    .progress { color:var(--muted); font-size:13px; white-space:nowrap; }
+    .task-list { list-style:none; padding:0; margin:0; }
+    .task { padding:23px 26px; display:grid; grid-template-columns:1fr 100px 160px; align-items:center; gap:18px; border-bottom:1px solid var(--line); }
+    .task:last-child { border-bottom:0; }
+    .task[hidden], .empty[hidden] { display:none; }
+    .subject { font-size:12px; color:var(--green); margin:0 0 4px; }
+    .task h3 { font-size:16px; margin:0; letter-spacing:-.2px; }
+    .status { display:block; font-size:12px; margin-top:5px; color:var(--muted); }
+    .deadline { font-size:12px; color:var(--muted); display:flex; align-items:center; gap:7px; }
+    .deadline::before { content:""; width:5px; height:5px; border-radius:50%; background:var(--green); }
+    .complete-button { display:flex; justify-content:center; align-items:center; gap:7px; background:white; color:var(--green); border:1px solid #b7c7b6; border-radius:8px; padding:9px 10px; cursor:pointer; font-size:13px; min-height:44px; }
+    .complete-button:hover { background:var(--tint); border-color:var(--green); }
+    .task.is-done h3 { text-decoration:line-through; color:var(--muted); }
+    .task.is-done .complete-button { color:white; background:var(--green); border-color:var(--green); }
+    .task.is-done .complete-button:hover { background:var(--green-dark); }
+    .empty { text-align:center; padding:30px 20px; color:var(--muted); margin:0; }
+    .demo-note { display:flex; align-items:flex-start; gap:9px; color:var(--muted); font-size:13px; margin:18px 0 0; max-width:730px; }
+    .demo-note svg { flex:none; margin-top:3px; }
+    .sr-only { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }
+    .faq-grid { display:grid; grid-template-columns:1fr 1.2fr; gap:80px; }
+    details { border-bottom:1px solid var(--line); padding:20px 0; }
+    details:first-child { padding-top:0; }
+    summary { cursor:pointer; display:flex; align-items:center; justify-content:space-between; gap:16px; font-weight:600; list-style:none; }
+    summary::-webkit-details-marker { display:none; }
+    summary::after { content:"+"; color:var(--green); font-size:25px; line-height:1; font-weight:400; }
+    details[open] summary::after { content:"−"; }
+    summary:hover { color:var(--green); }
+    details p { color:var(--muted); font-size:14px; margin:14px 30px 0 0; }
+    .closing { padding:0 0 70px; }
+    .closing-inner { background:var(--green); color:white; border-radius:28px; padding:48px 52px; display:flex; align-items:center; justify-content:space-between; gap:40px; }
+    .closing h2 { font-size:34px; }
+    .closing p { margin:12px 0 0; color:#dbe9dd; font-size:15px; }
+    .closing .button { flex:none; background:white; color:var(--green); border-color:white; }
+    .closing .button:hover { background:var(--tint); }
+    .closing :focus-visible { outline-color:white; }
+    footer { border-top:1px solid var(--line); }
+    .footer-inner { min-height:95px; display:flex; align-items:center; justify-content:space-between; gap:20px; color:var(--muted); font-size:13px; }
+    .footer-inner p { margin:0; }
+    .footer-name { color:var(--ink); font-weight:600; }
+    @media (max-width:1000px) {
+      .hero-grid { gap:32px; }
+      h1 { font-size:48px; }
+      .features { grid-template-columns:repeat(2,1fr); }
+      .problem-grid, .faq-grid { gap:40px; }
+      nav { gap:18px; }
+      .hero-visual { padding:25px 14px 20px; }
+      .planner-preview { padding:18px; }
+      .preview-row > span:last-child { display:none; }
+      .closing-inner { padding:40px 32px; }
+    }
+    @media (max-width:800px) {
+      .container { width:calc(100% - 48px); }
+      .header-inner { flex-wrap:wrap; padding:17px 0 13px; gap:12px; }
+      .brand { font-size:16px; }
+      nav { gap:20px; font-size:13px; }
+      .nav-demo { padding:6px 11px; }
+      .hero { padding:55px 0; }
+      .hero-grid { grid-template-columns:1fr 1fr; gap:26px; }
+      h1 { font-size:42px; letter-spacing:-1.8px; }
+      .lead { font-size:16px; }
+      .hero-visual { border-radius:23px; }
+      .preview-header strong { font-size:19px; }
+      .preview-symbol { display:none; }
+      .section { padding:56px 0; }
+      .steps { gap:25px; }
+      .task { grid-template-columns:1fr 85px 140px; padding:20px; gap:12px; }
+      .demo-toolbar { padding:18px 20px; }
+      .closing-inner { align-items:flex-start; flex-direction:column; gap:24px; }
+      .closing h2 { font-size:30px; }
+      .closing { padding-bottom:50px; }
+    }
+    @media (max-width:600px) {
+      html { scroll-padding-top:125px; }
+      .container { width:calc(100% - 36px); }
+      .header-inner { display:block; }
+      .brand { margin-bottom:12px; }
+      .brand-icon { width:30px; height:30px; border-radius:8px; }
+      nav { justify-content:space-between; gap:10px; font-size:12px; }
+      .nav-demo { padding:5px 9px; }
+      .hero { padding:42px 0 48px; }
+      .hero-grid, .problem-grid, .faq-grid { grid-template-columns:1fr; gap:32px; }
+      h1 { font-size:44px; line-height:1.1; }
+      .eyebrow { font-size:10px; margin-bottom:18px; }
+      .lead { margin-bottom:24px; }
+      .hero-visual { padding:22px 18px; }
+      .preview-row > span:last-child { display:block; }
+      .section { padding:46px 0; }
+      h2 { font-size:32px; letter-spacing:-1px; }
+      .features { gap:12px; margin-top:26px; }
+      .feature { padding:20px 16px; border-radius:16px; }
+      .feature h3 { font-size:17px; }
+      .feature p { font-size:13px; }
+      .feature-icon { margin-bottom:20px; }
+      .steps { grid-template-columns:1fr; gap:26px; margin-top:28px; }
+      .step { display:grid; grid-template-columns:42px 1fr; column-gap:18px; padding-top:22px; }
+      .step-number { grid-row:1 / 3; margin:0; font-size:30px; }
+      .step p { max-width:none; }
+      .demo-heading { align-items:flex-start; flex-direction:column; gap:18px; }
+      .demo-toolbar { flex-direction:column; align-items:flex-start; gap:10px; padding:16px; }
+      .filter { padding:7px 10px; }
+      .task { grid-template-columns:1fr auto; padding:20px 16px; gap:14px 10px; }
+      .task-info { grid-column:1 / -1; }
+      .complete-button { min-width:151px; }
+      .demo-panel { margin-top:24px; border-radius:17px; }
+      .demo-note { font-size:12px; }
+      .faq-grid { gap:28px; }
+      .closing-inner { padding:30px 24px; border-radius:20px; }
+      .closing h2 { font-size:29px; }
+      .closing { padding-bottom:36px; }
+      .footer-inner { align-items:flex-start; justify-content:center; flex-direction:column; gap:7px; padding:25px 0; }
+    }
+    @media (prefers-reduced-motion:reduce) { html { scroll-behavior:auto; } a,button { transition:none; } .button:hover { transform:none; } }
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#main">Перейти к содержанию</a>
+  <header class="site-header">
+    <div class="container header-inner">
+      <a class="brand" href="#home" aria-label="Планировщик студента — начало страницы">
+        <span class="brand-icon" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><rect x="4" y="5" width="16" height="16" rx="3" stroke="currentColor" stroke-width="1.6"/><path d="M8 3v4m8-4v4M4 10h16m-12 5 3 3 5-5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+        Планировщик студента
+      </a>
+      <nav aria-label="Основная навигация">
+        <a href="#about">О проекте</a><a href="#features">Возможности</a><a href="#faq">Вопросы</a><a class="nav-demo" href="#demo">Демонстрация ↗</a>
+      </nav>
+    </div>
+  </header>
+  <main id="main">
+    <section class="hero" id="home" aria-labelledby="hero-title">
+      <div class="container hero-grid">
+        <div>
+          <p class="eyebrow">Учебная концепция · для студентов</p>
+          <h1 id="hero-title">Меньше хаоса.<br>Больше <span>ясности<br>в учёбе.</span></h1>
+          <p class="lead">Задания, предметы и сроки в одном месте. Чтобы видеть, что сделать сегодня, и спокойно переходить к следующей задаче.</p>
+          <a class="button" href="#demo">Посмотреть пример <span aria-hidden="true">↗</span></a>
+          <p class="small-note">Небольшая демонстрация. Без регистрации.</p>
+        </div>
+        <div class="hero-visual" aria-label="Иллюстрация интерфейса планировщика">
+          <div class="visual-label"><span>Учёба по порядку</span><span aria-hidden="true">✳</span></div>
+          <div class="planner-preview">
+            <div class="preview-header"><div><strong>Мой учебный день</strong><p>Одна задача за другой</p></div><span class="preview-symbol" aria-hidden="true"><svg width="23" height="23" viewBox="0 0 24 24" fill="none"><path d="M12 3v3m0 12v3M3 12h3m12 0h3M5.6 5.6l2.1 2.1m8.6 8.6 2.1 2.1M5.6 18.4l2.1-2.1m8.6-8.6 2.1-2.1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><circle cx="12" cy="12" r="4" stroke="currentColor" stroke-width="1.5"/></svg></span></div>
+            <div class="preview-row"><span class="preview-check" aria-hidden="true"></span><div><strong>Решить задачи по интегралам</strong><small>Математика</small></div><span>Сегодня</span></div>
+            <div class="preview-row"><span class="preview-check" aria-hidden="true"></span><div><strong>Подготовить план эссе</strong><small>История</small></div><span>Завтра</span></div>
+            <div class="preview-row"><span class="preview-check done" aria-hidden="true">✓</span><div><strong>Повторить конспект</strong><small>Готово — можно выдохнуть</small></div></div>
+          </div>
+          <p class="visual-caption">Пример интерфейса · вымышленные задания</p>
+        </div>
+      </div>
+    </section>
+    <section class="section" id="about" aria-labelledby="about-title">
+      <div class="container problem-grid">
+        <div><p class="section-number">01 / О проекте</p><h2 id="about-title">Задания везде.<br>План — в одном месте.</h2></div>
+        <div class="problem-copy"><span class="inline-tag">Знакомая ситуация?</span><p>Одно задание осталось в чате группы, другое — в тетради, а срок третьего преподаватель назвал на паре. Чтобы понять, за что взяться, приходится собирать всё заново.</p><p>«Планировщик студента» — учебная концепция простого списка: у каждого задания есть предмет, срок и статус. Идея проекта — сделать ближайшие дела заметными и помочь расставить приоритеты.</p></div>
+      </div>
+    </section>
+    <section class="section" id="features" aria-labelledby="features-title">
+      <div class="container">
+        <p class="section-number">02 / Возможности концепции</p><h2 id="features-title">Всё, что нужно для ясного плана</h2><p class="section-intro">Четыре простых элемента, чтобы не держать весь семестр в голове.</p>
+        <div class="features">
+          <article class="feature"><span class="feature-icon" aria-hidden="true"><svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M12 5C9 3 5 3 3 4v15c3-1 6-1 9 1 3-2 6-2 9-1V4c-2-1-6-1-9 1Zm0 0v15" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg></span><h3>Предметы</h3><p>У каждого задания есть свой предмет. Сразу понятно, к какой паре готовиться.</p></article>
+          <article class="feature"><span class="feature-icon" aria-hidden="true"><svg width="24" height="24" viewBox="0 0 24 24" fill="none"><rect x="4" y="5" width="16" height="16" rx="3" stroke="currentColor" stroke-width="1.6"/><path d="M8 3v4m8-4v4M4 10h16m-12 5h3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></span><h3>Сроки</h3><p>Сегодня, завтра или на неделе — ближайшие дела легко найти в списке.</p></article>
+          <article class="feature"><span class="feature-icon" aria-hidden="true"><svg width="24" height="24" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.6"/><path d="m8 12 3 3 5-6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span><h3>Статусы</h3><p>Отметьте выполненное и посмотрите, какие задания ещё требуют внимания.</p></article>
+          <article class="feature"><span class="feature-icon" aria-hidden="true"><svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M4 7h16M4 17h16" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><circle cx="9" cy="7" r="3" fill="var(--tint)" stroke="currentColor" stroke-width="1.6"/><circle cx="15" cy="17" r="3" fill="var(--tint)" stroke="currentColor" stroke-width="1.6"/></svg></span><h3>Фильтрация</h3><p>Переключайтесь между всеми, активными и выполненными заданиями.</p></article>
+        </div>
+      </div>
+    </section>
+    <section class="section" id="steps" aria-labelledby="steps-title">
+      <div class="container"><p class="section-number">03 / Как это задумано</p><h2 id="steps-title">От задания до «готово» — три шага</h2>
+        <div class="steps">
+          <article class="step"><span class="step-number" aria-hidden="true">01</span><h3>Добавить задачу</h3><p>Записать задание, указать предмет и срок. В демонстрации мы уже добавили три примера.</p></article>
+          <article class="step"><span class="step-number" aria-hidden="true">02</span><h3>Выбрать ближайшую</h3><p>Посмотреть на сроки и начать с того, что нужно сдать раньше всего.</p></article>
+          <article class="step"><span class="step-number" aria-hidden="true">03</span><h3>Отметить выполненной</h3><p>Закрыть готовое задание и освободить внимание для следующего.</p></article>
+        </div>
+      </div>
+    </section>
+    <section class="section demo-section" id="demo" aria-labelledby="demo-title">
+      <div class="container">
+        <div class="demo-heading"><div><p class="section-number">04 / Попробовать в деле</p><h2 id="demo-title">Ваш маленький учебный план</h2><p class="section-intro">Нажмите «Готово», чтобы изменить статус задания. Повторное нажатие отменит отметку.</p></div><span class="demo-badge">Интерактивный пример</span></div>
+        <div class="demo-panel">
+          <div class="demo-toolbar"><div class="filters" role="group" aria-label="Фильтр заданий по статусу"><button class="filter" type="button" data-filter="all" aria-pressed="true">Все задания</button><button class="filter" type="button" data-filter="active" aria-pressed="false">Активные</button><button class="filter" type="button" data-filter="done" aria-pressed="false">Выполненные</button></div><div class="demo-actions"><span class="progress" id="progress">Выполнено: 0 из 3</span><button class="reset-button" id="reset-demo" type="button">Сбросить пример</button></div></div>
+          <ul class="task-list" aria-label="Вымышленные учебные задания">
+            <li class="task"><div class="task-info"><p class="subject">Математика</p><h3 id="task-1">Решить 5 задач по интегралам</h3><span class="status">Статус: в плане</span></div><span class="deadline">Сегодня</span><button class="complete-button" type="button" aria-pressed="false" aria-label="Готово: Решить 5 задач по интегралам" aria-describedby="task-1">Готово</button></li>
+            <li class="task"><div class="task-info"><p class="subject">История</p><h3 id="task-2">Подготовить план эссе</h3><span class="status">Статус: в плане</span></div><span class="deadline">Завтра</span><button class="complete-button" type="button" aria-pressed="false" aria-label="Готово: Подготовить план эссе" aria-describedby="task-2">Готово</button></li>
+            <li class="task"><div class="task-info"><p class="subject">Программирование</p><h3 id="task-3">Оформить отчёт к лабораторной</h3><span class="status">Статус: в плане</span></div><span class="deadline">На неделе</span><button class="complete-button" type="button" aria-pressed="false" aria-label="Готово: Оформить отчёт к лабораторной" aria-describedby="task-3">Готово</button></li>
+          </ul>
+          <p class="empty" id="empty" hidden></p>
+        </div>
+        <p class="demo-note"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.6"/><path d="M12 11v6m0-10v1" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg><span>Все три задания вымышлены. Изменения живут только на этой странице и сбрасываются после перезагрузки. Повторное нажатие вернёт задание в план.</span></p>
+        <p class="sr-only" id="announcement" role="status" aria-live="polite" aria-atomic="true"></p>
+      </div>
+    </section>
+    <section class="section" id="faq" aria-labelledby="faq-title">
+      <div class="container faq-grid"><div><p class="section-number">05 / Вопросы и ответы</p><h2 id="faq-title">Прежде чем начать</h2><p class="section-intro">Что представляет собой проект сейчас.</p></div>
+        <div><details open><summary>Кому подходит планировщик?</summary><p>Концепция рассчитана на студентов вузов, которым нужно видеть задания по разным предметам и ближайшие сроки сдачи в одном списке.</p></details><details><summary>Где хранятся данные?</summary><p>В этой демонстрации состояния заданий находятся только в памяти страницы вашего браузера. Они не отправляются на сервер и не сохраняются после перезагрузки. Учётных записей здесь нет.</p></details><details><summary>Готов ли продукт к использованию?</summary><p>Это учебный проект, а не запущенный сервис. Сейчас доступен только пример с тремя заданиями: можно менять их статус и фильтровать список. Добавление своих задач и полноценный планировщик пока не реализованы.</p></details></div>
+      </div>
+    </section>
+    <section class="closing" id="start" aria-labelledby="start-title">
+      <div class="container"><div class="closing-inner"><div><h2 id="start-title">Начните с одного «готово»</h2><p>Откройте пример и отметьте первое выполненное задание.</p></div><a class="button" href="#demo">Открыть демонстрацию <span aria-hidden="true">↗</span></a></div></div>
+    </section>
+  </main>
+  <footer><div class="container footer-inner"><p class="footer-name">Планировщик студента</p><p>Учебный проект · концепция, а не действующий сервис</p></div></footer>
+  <script>
+    (() => {
+      const tasks = [...document.querySelectorAll('.task')];
+      const filters = [...document.querySelectorAll('.filter')];
+      const progress = document.getElementById('progress');
+      const empty = document.getElementById('empty');
+      const announcement = document.getElementById('announcement');
+      let currentFilter = 'all';
+
+      function updateView() {
+        const completed = tasks.filter(task => task.classList.contains('is-done')).length;
+        progress.textContent = `Выполнено: ${completed} из ${tasks.length}`;
+        tasks.forEach(task => {
+          const done = task.classList.contains('is-done');
+          task.hidden = (currentFilter === 'active' && done) || (currentFilter === 'done' && !done);
+        });
+        empty.hidden = tasks.some(task => !task.hidden);
+        empty.textContent = currentFilter === 'done'
+          ? 'Пока нет выполненных заданий. Отметьте готовое в общем списке.'
+          : 'Все задания выполнены. Можно выдохнуть!';
+      }
+
+      tasks.forEach(task => {
+        const button = task.querySelector('.complete-button');
+        button.addEventListener('click', () => {
+          const done = task.classList.toggle('is-done');
+          button.setAttribute('aria-pressed', String(done));
+          task.querySelector('.status').textContent = done ? 'Статус: выполнено' : 'Статус: в плане';
+          updateView();
+          announcement.textContent = `${task.querySelector('h3').textContent}: ${done ? 'выполнено' : 'возвращено в план'}. ${progress.textContent}.`;
+          if (task.hidden) {
+            const nextTask = tasks.find(item => !item.hidden);
+            (nextTask ? nextTask.querySelector('.complete-button') : filters.find(filter => filter.dataset.filter === currentFilter)).focus();
+          }
+        });
+      });
+
+      document.getElementById('reset-demo').addEventListener('click', () => {
+        tasks.forEach(task => {
+          task.classList.remove('is-done');
+          task.querySelector('.complete-button').setAttribute('aria-pressed', 'false');
+          task.querySelector('.status').textContent = 'Статус: в плане';
+        });
+        currentFilter = 'all';
+        filters.forEach(filter => filter.setAttribute('aria-pressed', String(filter.dataset.filter === 'all')));
+        updateView();
+        announcement.textContent = 'Пример сброшен. Все три задания снова в плане. Выполнено: 0 из 3.';
+      });
+
+      filters.forEach(button => {
+        button.addEventListener('click', () => {
+          currentFilter = button.dataset.filter;
+          filters.forEach(filter => filter.setAttribute('aria-pressed', String(filter === button)));
+          updateView();
+          const visible = tasks.filter(task => !task.hidden).length;
+          announcement.textContent = `Фильтр: ${button.textContent}. Показано заданий: ${visible}.`;
+        });
+      });
+    })();
+  </script>
+</body>
+</html>
