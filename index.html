@@ -102,6 +102,18 @@
     .feature:nth-child(3) .feature-icon { background:var(--violet); color:#705294; }
     .feature:nth-child(4) .feature-icon { background:var(--blue); color:#416591; }
     .feature p { margin:0; color:var(--muted); font-size:14px; line-height:1.75; }
+
+    /* Локальные фотографии учебной среды */
+    .study-gallery { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:22px; margin-top:36px; }
+    .study-photo { display:flex; flex-direction:column; min-width:0; margin:0; background:var(--white); border:1px solid var(--line); border-radius:var(--radius); overflow:hidden; box-shadow:var(--shadow); }
+    .study-photo img { display:block; width:100%; height:auto; aspect-ratio:4 / 3; object-fit:cover; flex:none; background:var(--tint); }
+    .study-photo figcaption { padding:24px; }
+    .study-photo-label { display:inline-block; margin:0 0 14px; padding:4px 9px; background:var(--tint); color:var(--green); border-radius:7px; font-size:11px; line-height:1.5; font-weight:650; }
+    .study-photo:nth-child(2) .study-photo-label { background:var(--peach); color:#875327; }
+    .study-photo:nth-child(3) .study-photo-label { background:var(--violet); color:#705294; }
+    .study-photo h3 { margin-bottom:9px; font-size:19px; }
+    .study-photo figcaption > p { margin:0; color:var(--muted); font-size:14px; line-height:1.75; }
+
     .steps { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:40px; margin-top:40px; }
     .step { border-top:1px solid #ccd8c4; padding-top:25px; }
     .step-number { display:grid; place-items:center; width:48px; height:48px; color:var(--green); background:var(--tint); border-radius:50%; font-size:17px; font-weight:650; font-variant-numeric:tabular-nums; margin-bottom:24px; }
@@ -215,6 +227,7 @@
       .lead { max-width:550px; }
       .section { padding:64px 0; }
       .problem-grid, .faq-grid { grid-template-columns:1fr; gap:30px; }
+      .study-gallery { grid-template-columns:1fr; max-width:560px; margin-inline:auto; }
       .steps { gap:24px; }
       .step h3 { font-size:18px; }
       .demo-heading { flex-direction:column; gap:20px; }
@@ -263,6 +276,9 @@
       .feature h3 { font-size:18px; }
       .feature p { font-size:13px; }
       .feature-icon { width:44px; height:44px; margin-bottom:22px; border-radius:13px; }
+      .study-gallery { gap:20px; margin-top:28px; }
+      .study-photo { border-radius:20px; }
+      .study-photo figcaption { padding:22px 20px; }
       .steps { grid-template-columns:1fr; gap:25px; margin-top:30px; }
       .step { display:grid; grid-template-columns:42px minmax(0,1fr); column-gap:18px; padding-top:22px; }
       .step-number { grid-row:1 / 3; width:42px; height:42px; margin:0; font-size:15px; }
@@ -357,6 +373,39 @@
           <article class="feature"><span class="feature-icon" aria-hidden="true"><svg width="24" height="24" viewBox="0 0 24 24" fill="none"><rect x="4" y="5" width="16" height="16" rx="3" stroke="currentColor" stroke-width="1.6"/><path d="M8 3v4m8-4v4M4 10h16m-12 5h3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></span><h3>Сроки</h3><p>Сегодня, завтра или на неделе — ближайшие дела легко найти в списке.</p></article>
           <article class="feature"><span class="feature-icon" aria-hidden="true"><svg width="24" height="24" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.6"/><path d="m8 12 3 3 5-6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span><h3>Статусы</h3><p>Отметьте выполненное и посмотрите, какие задания ещё требуют внимания.</p></article>
           <article class="feature"><span class="feature-icon" aria-hidden="true"><svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M4 7h16M4 17h16" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><circle cx="9" cy="7" r="3" fill="var(--tint)" stroke="currentColor" stroke-width="1.6"/><circle cx="15" cy="17" r="3" fill="var(--tint)" stroke="currentColor" stroke-width="1.6"/></svg></span><h3>Фильтрация</h3><p>Переключайтесь между всеми, активными и выполненными заданиями.</p></article>
+        </div>
+      </div>
+    </section>
+    <section class="section" id="study-space" aria-labelledby="study-space-title">
+      <div class="container">
+        <p class="section-number">Вдохновение / Учебная среда</p>
+        <h2 id="study-space-title">Место для спокойной учёбы</h2>
+        <p class="section-intro">Удобный стол, понятный план и время на главное — простые опоры учебного дня.</p>
+        <div class="study-gallery">
+          <figure class="study-photo">
+            <img src="images/desk.jpg" alt="Рабочий стол у окна с ноутбуком, открытой тетрадью, лампой и книгами" width="1536" height="1024" loading="lazy" decoding="async">
+            <figcaption>
+              <span class="study-photo-label">01 / Рабочее место</span>
+              <h3>Всё нужное — под рукой</h3>
+              <p>Подготовьте конспекты и материалы заранее, чтобы легче включиться в работу.</p>
+            </figcaption>
+          </figure>
+          <figure class="study-photo">
+            <img src="images/planner.jpg" alt="Открытый бумажный планировщик с расписанием на неделю, списками дел и ручкой" width="1024" height="1024" loading="lazy" decoding="async">
+            <figcaption>
+              <span class="study-photo-label">02 / План на неделю</span>
+              <h3>У каждого дела своё время</h3>
+              <p>Соберите задания в одном списке и распределите нагрузку по дням.</p>
+            </figcaption>
+          </figure>
+          <figure class="study-photo">
+            <img src="images/study.jpg" alt="Студентка занимается в библиотеке за столом с учебниками, конспектом и ноутбуком" width="1024" height="1024" loading="lazy" decoding="async">
+            <figcaption>
+              <span class="study-photo-label">03 / Время на главное</span>
+              <h3>Одна задача за другой</h3>
+              <p>Выберите ближайшее задание и уделите ему внимание. Остальное уже есть в плане.</p>
+            </figcaption>
+          </figure>
         </div>
       </div>
     </section>
